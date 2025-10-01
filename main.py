@@ -9,10 +9,11 @@ class BankAccount():
     def deposit(self, amount: int) -> None:
         self._balance += amount
 
-    
+   
+    # Raise an error here
     def withdraw(self, amount: int) -> None:
         if self._balance < amount:
-            print("Balance not enough")
+            raise ValueError("Not enough balance")
         else:
             self._balance -= amount 
 
@@ -58,7 +59,10 @@ def main():
                 account1.deposit(int(deposit_amount))
             case Action.WITHDRAW:
                 withdraw_amount = ask_amount("How much do you want to withdraw?\n")
-                account1.withdraw(int(withdraw_amount))
+                try:
+                    account1.withdraw(int(withdraw_amount))
+                except ValueError as e:
+                    print(f"Error message: {e}.")
             case Action.GET_BALANCE:
                 print(f"Your current balance is {account1.get_balance()}.\n")
             case Action.QUIT:
