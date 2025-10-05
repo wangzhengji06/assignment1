@@ -1,28 +1,17 @@
+"""
+main.py
+
+Used to run interative task for the user
+
+"""
 from enum import Enum
-
-
-class BankAccount():
-    def __init__(self):
-        self._balance = 0
-
-
-    def deposit(self, amount: int) -> None:
-        self._balance += amount
-
-   
-    # Raise an error here
-    def withdraw(self, amount: int) -> None:
-        if self._balance < amount:
-            raise ValueError("Not enough balance")
-        else:
-            self._balance -= amount 
-
-    
-    def get_balance(self) -> int:
-        return self._balance 
+from account import BankAccount
 
 
 class Action(Enum):
+    """
+    Used to hold the string the user inputs for action applied on bank account
+    """
     DEPOSIT = "deposit"
     WITHDRAW = "withdraw"
     GET_BALANCE = "get balance"
@@ -30,6 +19,11 @@ class Action(Enum):
 
 
 def ask_amount(prompt: str) -> int:
+    """
+    takes in the amount prompt from customer.
+    will try to transfer the prompt into a positive integer,
+    otherwise asks the user to try again.
+    """
     while True:
         raw = input(prompt)
         try:
@@ -43,22 +37,31 @@ def ask_amount(prompt: str) -> int:
 
 
 def main():
+    """
+    1. Create a back account
+    2. Deposit 300 in it
+    3. Ask the user to choose action
+    4. Execute the action
+    """
     account1 = BankAccount()
     account1.deposit(300)
     print(account1.get_balance())
 
     while True:
-        action = input("Choose the action among the following options: deposit / withdraw / get balance / quit \n")
+        action = input("Choose the action among the following options:\
+        deposit / withdraw / get balance / quit \n")
         try:
             action_enum = Action(action.strip().lower())
         except ValueError:
             action_enum = None
         match action_enum:
             case Action.DEPOSIT:
-                deposit_amount = ask_amount("How much do you want to deposit?\n")
+                deposit_amount = ask_amount("How much\
+                do you want to deposit?\n")
                 account1.deposit(int(deposit_amount))
             case Action.WITHDRAW:
-                withdraw_amount = ask_amount("How much do you want to withdraw?\n")
+                withdraw_amount = ask_amount("How much\
+                do you want to withdraw?\n")
                 try:
                     account1.withdraw(int(withdraw_amount))
                 except ValueError as e:
@@ -74,4 +77,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
