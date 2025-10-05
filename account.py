@@ -14,6 +14,14 @@ class BankAccount():
     def __init__(self):
         self._balance = 0
 
+    def __str__(self) -> str:
+        return f"BankAccount with {id(self)}"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, BankAccount):
+            return False
+        return self._balance == other._balance
+
     def deposit(self, amount: int) -> None:
         """
         deposits {amount} dollars into the back account
