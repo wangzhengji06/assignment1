@@ -4,18 +4,11 @@ main.py
 Used to run interative task for the user
 
 """
-from enum import Enum
-from account import BankAccount
 
+from abc import ABC, abstractmethod
 
-class Action(Enum):
-    """
-    Used to hold the string the user inputs for action applied on bank account
-    """
-    DEPOSIT = "deposit"
-    WITHDRAW = "withdraw"
-    GET_BALANCE = "get balance"
-    QUIT = "quit"
+from action import Action
+from domain.account import BankAccount
 
 
 def ask_amount(prompt: str) -> int:
@@ -48,20 +41,26 @@ def main():
     print(account1.get_balance())
 
     while True:
-        action = input("Choose the action among the following options:\
-        deposit / withdraw / get balance / quit \n")
+        action = input(
+            "Choose the action among the following options:\
+        deposit / withdraw / get balance / quit \n"
+        )
         try:
             action_enum = Action(action.strip().lower())
         except ValueError:
             action_enum = None
         match action_enum:
             case Action.DEPOSIT:
-                deposit_amount = ask_amount("How much\
-                do you want to deposit?\n")
+                deposit_amount = ask_amount(
+                    "How much\
+                do you want to deposit?\n"
+                )
                 account1.deposit(int(deposit_amount))
             case Action.WITHDRAW:
-                withdraw_amount = ask_amount("How much\
-                do you want to withdraw?\n")
+                withdraw_amount = ask_amount(
+                    "How much\
+                do you want to withdraw?\n"
+                )
                 try:
                     account1.withdraw(int(withdraw_amount))
                 except ValueError as e:

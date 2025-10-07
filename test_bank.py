@@ -6,7 +6,7 @@ Used to implement pytest
 
 
 import pytest
-from account import BankAccount
+from domain.account import BankAccount
 
 
 def test_backaccount_deposit():
