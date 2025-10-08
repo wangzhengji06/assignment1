@@ -1,11 +1,12 @@
 """
-action.py
+actions.py
 
 Defines the Action class
 """
 
-
 from enum import Enum, auto
+
+__all__ = ["Action"]
 
 
 class Action(Enum):

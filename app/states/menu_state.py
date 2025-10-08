@@ -3,9 +3,11 @@ menu_state.py
 
 Define the class of MenuState
 """
-from app.render_spec import RenderSpec
-from action import Action
+from app import RenderSpec
+from app import Action
 from .state import State
+
+__all__ = ['MenuState']
 
 
 class MenuState(State):

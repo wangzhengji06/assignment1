@@ -4,8 +4,10 @@ state.py
 Define the abstract class of state
 """
 from abc import ABC, abstractmethod
-from app.render_spec import RenderSpec
-from action import Action
+from app import RenderSpec
+from app import Action
+
+__all__ = ['State']
 
 
 class State(ABC):

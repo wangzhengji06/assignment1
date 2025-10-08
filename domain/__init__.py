@@ -1,4 +1,0 @@
-"""
-domain
-"""
-from . import account

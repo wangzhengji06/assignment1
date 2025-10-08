@@ -4,6 +4,8 @@ account.py
 This module is used to define the back account class
 """
 
+__all__ = ['BankAccount']
+
 
 class BankAccount():
 

@@ -7,9 +7,8 @@ Used to run interative task for the user
 
 from abc import ABC, abstractmethod
 
-from action import Action
-from domain.account import BankAccount
-
+import app.action as action
+import app.domain as domain
 
 def ask_amount(prompt: str) -> int:
     """
@@ -36,7 +35,7 @@ def main():
     3. Ask the user to choose action
     4. Execute the action
     """
-    account1 = BankAccount()
+    account1 = domain.BankAccount()
     account1.deposit(300)
     print(account1.get_balance())
 
