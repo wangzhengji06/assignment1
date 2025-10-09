@@ -3,8 +3,8 @@ menu_state.py
 
 Define the class of MenuState
 """
-from app import RenderSpec
-from app import Action
+from ..render_spec import RenderSpec
+from ..actions import Action
 from .state import State
 
 __all__ = ['MenuState']
@@ -19,6 +19,7 @@ class MenuState(State):
         """
         the state's move when newly entered
         """
+         
 
     def on_ui(self, action: Action) -> State:
         """

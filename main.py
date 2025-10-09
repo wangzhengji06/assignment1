@@ -5,10 +5,9 @@ Used to run interative task for the user
 
 """
 
-from abc import ABC, abstractmethod
+import app
+from app import domain
 
-import app.action as action
-import app.domain as domain
 
 def ask_amount(prompt: str) -> int:
     """
@@ -45,17 +44,17 @@ def main():
         deposit / withdraw / get balance / quit \n"
         )
         try:
-            action_enum = Action(action.strip().lower())
+            action_enum = app.Action(action.strip().lower())
         except ValueError:
             action_enum = None
         match action_enum:
-            case Action.DEPOSIT:
+            case app.Action.DEPOSIT:
                 deposit_amount = ask_amount(
                     "How much\
                 do you want to deposit?\n"
                 )
                 account1.deposit(int(deposit_amount))
-            case Action.WITHDRAW:
+            case app.Action.WITHDRAW:
                 withdraw_amount = ask_amount(
                     "How much\
                 do you want to withdraw?\n"
@@ -64,9 +63,9 @@ def main():
                     account1.withdraw(int(withdraw_amount))
                 except ValueError as e:
                     print(f"Error message: {e}.")
-            case Action.GET_BALANCE:
+            case app.Action.SHOW_BALANCE:
                 print(f"Your current balance is {account1.get_balance()}.\n")
-            case Action.QUIT:
+            case app.Action.QUIT:
                 print("Session ended.")
                 break
             case _:

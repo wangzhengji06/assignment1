@@ -3,6 +3,7 @@ account.py
 
 This module is used to define the back account class
 """
+from typing import Tuple, Optional
 
 __all__ = ['BankAccount']
 
@@ -30,13 +31,14 @@ class BankAccount():
         """
         self._balance += amount
 
-    def withdraw(self, amount: int) -> None:
+    def withdraw(self, amount: int) -> Tuple[bool, Optional[str]]:
         """
         withdraws {amount} dollars from the back account
         """
         if self._balance < amount:
-            raise ValueError("Not enough balance")
+            return (False, "Not enough balance")
         self._balance -= amount
+        return (True, None)
 
     def get_balance(self) -> int:
         """

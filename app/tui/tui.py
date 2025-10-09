@@ -6,7 +6,7 @@ Used for interface creation with blessed
 
 from enum import Enum
 from blessed import Terminal
-from app import Action
+from ..actions import Action
 
 _term = Terminal()
 
