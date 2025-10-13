@@ -7,7 +7,7 @@ Define the elements that the app state should return.
 from typing import List, Optional, Literal
 from dataclasses import dataclass, field
 
-__all__ = ["RenderSpec"]
+__all__ = ["RenderSpec", "Status"]
 
 
 @dataclass
@@ -44,9 +44,9 @@ class RenderSpec:
     """
     The general render spec template to feed into tui.draw
     """
-    title: Optional[str]
-    menu: Optional[Menu]
-    status: Optional[Status]
-    footline: Optional[str]
+    title: Optional[str] = None
+    menu: Optional[Menu] = None
+    status: Optional[Status] = None
+    footline: Optional[str] = None
     should_quit: bool = False
     body: List[str] = field(default_factory=list)

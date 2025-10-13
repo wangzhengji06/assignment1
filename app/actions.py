@@ -2,6 +2,15 @@
 actions.py
 
 Defines the Action class
+
+menu_state -> UP -> menu_state
+menu_state -> DOWN -> menu_state
+menu_state -> CONFIRM -> input_state/quit_state
+menu_state -> wihdraw/balance -> input_state
+menu_state -> QUIT -> quit_state
+
+input_state -> SUBMIT_AMOUNT -> menu_state
+input_state -> CANCEL -> menu_state
 """
 
 from enum import Enum, auto
@@ -16,7 +25,6 @@ class Action(Enum):
     """
     CONFIRM = auto()
     CANCEL = auto()
-    SUBMIT_AMOUNT = auto()
     QUIT = auto()
     DEPOSIT = auto()
     WITHDRAW = auto()

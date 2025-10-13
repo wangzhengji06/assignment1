@@ -3,13 +3,16 @@ core.py
 
 Implement the app class that deal with action and account.
 """
+
 from __future__ import annotations
+
 from typing import Optional, Tuple
+
+from .actions import Action
 from .context import AppView
 from .domain import BankAccount
-from .states import State
-from .actions import Action
 from .render_spec import RenderSpec
+from .states import State
 
 __all__ = ["App"]
 
@@ -31,11 +34,11 @@ class App(AppView):
         """
         return self._account.get_balance()
 
-    def format_amount(self) -> str:
+    def format_amount(self, amount: int) -> str:
         """
         Return a humann-readable amount string.
         """
-        return f"Your bank account has {self.balance} left...."
+        return f"{amount}$"
 
     def deposit(self, amount: int) -> None:
         """
@@ -50,9 +53,21 @@ class App(AppView):
         self._account.withdraw(amount)
 
     def render(self) -> RenderSpec:
-        return self.state.render()
+        """
+        Given the current app state, render something.
+        """
+        return self.state.render(self)
 
-
-    def dispatch(self, action: Action) -> None:
-        pass
-
+    def dispatch(self, event: Action | str) -> None:
+        """
+        Call state based on Action or text.
+        """
+        if event is None:
+            return
+        if isinstance(event, str):
+            next_state = self.state.on_text(event, self)
+        elif isinstance(event, Action):
+            next_state = self.state.on_ui(event, self)
+        else:
+            return
+        self.state = next_state

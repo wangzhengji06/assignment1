@@ -1,10 +1,10 @@
 """
 test_backaccount.py
 
-Used to implement pytest
+Used to implement pytest for bank account
 """
 
-from app import domain
+import app.domain as domain
 
 
 def test_backaccount_deposit():

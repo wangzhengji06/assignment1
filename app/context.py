@@ -19,7 +19,7 @@ class AppView(Protocol):
         Return the back account balance.
         """
 
-    def format_amount(self) -> str:
+    def format_amount(self, amount: int) -> str:
         """
         Return a humann-readable amount string.
         """
