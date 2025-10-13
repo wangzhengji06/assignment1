@@ -96,6 +96,23 @@ def test_menu_withdraw_disabled_when_zero_balance():
     assert spec2.status.kind == "error"
 
 
+def test_menu_withdraw_disabled_when_zero_balancei_v2():
+    """
+    Assume a balance of 0
+    Test the spec of the menustate for withdraw is disabled
+    Move to withdraw and confirm
+    Make sure the current Status of menustate is error
+    """
+    ctx = FakeCtx(balance=0)
+    s = MenuState()
+    s = s.on_ui(Action.WITHDRAW, ctx)
+    spec2 = s.render(ctx)
+    assert isinstance(s, MenuState)
+    assert isinstance(spec2.status, Status.__class__)\
+        or spec2.status is not None
+    assert spec2.status.kind == "error"
+
+
 def test_menu_confirm_show_balance_sets_status_info():
     """
     Assume a balance of 1234
@@ -117,6 +134,22 @@ def test_menu_confirm_show_balance_sets_status_info():
     assert "1234" in spec.status.text
 
 
+def test_menu_confirm_show_balance_sets_status_info_v2():
+    """
+    Assume a balance of 1234
+    Select show balance
+    The result should be menustate with status info
+    """
+    ctx = FakeCtx(balance=1234)
+    s = MenuState()
+    s = s.on_ui(Action.SHOW_BALANCE, ctx)
+    spec = s.render(ctx)
+    assert isinstance(s, MenuState)
+    assert spec.status is not None
+    assert spec.status.kind == "info"
+    assert "1234" in spec.status.text
+
+
 def test_menu_confirm_deposit_transitions_to_input_state():
     """
     Assume a balance of 0
@@ -131,6 +164,19 @@ def test_menu_confirm_deposit_transitions_to_input_state():
         s = s.on_ui(Action.UP, ctx)
 
     s2 = s.on_ui(Action.CONFIRM, ctx)
+    assert isinstance(s2, InputAmountState)
+    assert s2.kind == "deposit"
+
+
+def test_menu_confirm_deposit_transitions_to_input_state_v2():
+    """
+    Assume a balance of 0
+    Select deposit
+    The result should be input amount state
+    """
+    ctx = FakeCtx(balance=0)
+    s = MenuState()
+    s2 = s.on_ui(Action.DEPOSIT, ctx)
     assert isinstance(s2, InputAmountState)
     assert s2.kind == "deposit"
 

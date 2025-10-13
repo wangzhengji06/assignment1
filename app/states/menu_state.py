@@ -34,38 +34,53 @@ class MenuState(State):
 
     def on_ui(self, action: Action, ctx: AppView) -> State:
         """
-        the state's move when a new action is activated
+        Handle state transition when a new action is activated.
         """
         from .input_state import InputAmountState
         from .quit_state import QuitState
+
+        menu = ("DEPOSIT", "WITHDRAW", "SHOW_BALANCE", "QUIT")
+        no_funds_msg = "No funds to withdraw"
+
+        def show_balance():
+            amt = ctx.format_amount(ctx.balance)
+            self.status = Status(kind="info", text=f"You have {amt} left.")
+
+        def ensure_funds() -> bool:
+            if ctx.balance <= 0:
+                self.status = Status(kind="error", text=no_funds_msg)
+                return False
+            return True
+
         match action:
             case Action.UP:
-                self.selected_index = (self.selected_index - 1) % 4
+                self.selected_index = (self.selected_index - 1) % len(menu)
             case Action.DOWN:
-                self.selected_index = (self.selected_index + 1) % 4
+                self.selected_index = (self.selected_index + 1) % len(menu)
+
+            case Action.DEPOSIT:
+                return InputAmountState(kind="deposit")
+
+            case Action.WITHDRAW:
+                if ensure_funds():
+                    return InputAmountState(kind="withdraw")
+
+            case Action.SHOW_BALANCE:
+                show_balance()
+
             case Action.CONFIRM:
-                choice = ["DEPOSIT", "WITHDRAW", "SHOW_BALANCE", "QUIT"][
-                    self.selected_index
-                ]
-                if choice == "WITHDRAW" and ctx.balance <= 0:
-                    self.status = Status(
-                        kind="error",
-                        text="No funds to withdraw")
-                    return self
+                choice = menu[self.selected_index]
                 match choice:
-                    case "SHOW_BALANCE":
-                        amt = ctx.format_amount(ctx.balance)
-                        self.status = Status(
-                            kind="info",
-                            text=f"You have\
- {amt} left.",
-                        )
                     case "DEPOSIT":
                         return InputAmountState(kind="deposit")
                     case "WITHDRAW":
-                        return InputAmountState(kind="withdraw")
+                        if ensure_funds():
+                            return InputAmountState(kind="withdraw")
+                    case "SHOW_BALANCE":
+                        show_balance()
                     case "QUIT":
                         return QuitState()
+
         return self
 
     def on_text(self, text: str, ctx: AppView) -> State:
