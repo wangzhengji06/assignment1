@@ -65,6 +65,9 @@ class MenuState(State):
                 if ensure_funds():
                     return InputAmountState(kind="withdraw")
 
+            case Action.QUIT:
+                return QuitState()
+
             case Action.SHOW_BALANCE:
                 show_balance()
 

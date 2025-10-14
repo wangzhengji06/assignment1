@@ -9,7 +9,6 @@ menu_state -> CONFIRM -> input_state/quit_state
 menu_state -> wihdraw/balance -> input_state
 menu_state -> QUIT -> quit_state
 
-input_state -> SUBMIT_AMOUNT -> menu_state
 input_state -> CANCEL -> menu_state
 """
 

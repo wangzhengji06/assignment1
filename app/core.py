@@ -12,7 +12,7 @@ from .actions import Action
 from .context import AppView
 from .domain import BankAccount
 from .render_spec import RenderSpec
-from .states import State
+from .states import MenuState
 
 __all__ = ["App"]
 
@@ -22,9 +22,9 @@ class App(AppView):
     Used to talk to Action and BankAccount. Leave the tui to state.
     """
 
-    def __init__(self, state: State) -> None:
+    def __init__(self) -> None:
         self._account = BankAccount()
-        self.state = state
+        self.state = MenuState()
         self.state.on_enter()
 
     @property
