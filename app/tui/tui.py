@@ -129,48 +129,12 @@ class TUI:
 
         # footer
         if spec.footline:
-            print(t.move_xy(0, t.height - 1) + t.color(250)(spec.footline[: t.width]))
-
-        """
-        # status
-        if spec.status:
-            kind = spec.status.kind  # "info" | "error" | "success"
-            style = {"info": t.bold, "error": t.bold_red, "success": t.bold_green}.get(
-                kind, t.bold
+            footer = str(spec.footline)
+            # Avoid auto-wrap on the last column
+            text = footer[: max(0, t.width - 1)]
+            print(
+                t.move_xy(0, t.height - 1) + t.clear_eol + t.color(250)(text),
+                end="",  # <- no newline to prevent scroll
             )
-            print(t.move_xy(0, y) + style(spec.status.text))
-            y += 2
 
-        # title
-        title = spec.title[:w]
-        # print(t.move_xy(max(0, (w - len(title)) // 2), y) + t.bold(title))
-        print(t.move_xy(67, 4) + t.bold(title))
-        y += 2
-
-        # body lines
-        for line in getattr(spec, "body", [])[: max(0, h - 3)]:
-            print(t.move_xy(2, y) + line[: max(0, w - 4)])
-            y += 1
-
-        # menu
-        if spec.menu:
-            for i, item in enumerate(spec.menu.items):
-                prefix = "➤ " if i == spec.menu.selected_index else "  "
-                label = f"{item.label}"
-                if item.hint:
-                    label += f" [{item.hint}]"
-                line = prefix + label
-                if item.disabled:
-                    line = t.color(250)(line)
-                elif i == spec.menu.selected_index:
-                    line = t.reverse(line)
-                print(t.move_xy(2, y) + line[: t.width - 4])
-                y += 1
-
-        # footer (bottom row)
-        if spec.footline:
-            print(t.move_xy(0, t.height - 1) + t.color(250)(spec.footline[: t.width]))
-
-        # flush the screen
-        """
         sys.stdout.flush()

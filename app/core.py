@@ -48,7 +48,7 @@ class App(AppView):
         """
         Apply a withdraw.
         """
-        self._account.withdraw(amount)
+        return self._account.withdraw(amount)
 
     def render(self) -> RenderSpec:
         """
