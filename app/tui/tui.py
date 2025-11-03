@@ -6,6 +6,7 @@ Used for interface creation with blessed
 
 from __future__ import annotations
 
+import sys
 from contextlib import contextmanager
 
 from blessed import Terminal
@@ -13,7 +14,7 @@ from blessed import Terminal
 from ..actions import Action
 from ..render_spec import RenderSpec
 
-__all__ = ['TUI']
+__all__ = ["TUI"]
 
 
 class TUI:
@@ -34,14 +35,12 @@ class TUI:
         """
         Full screen context manager
         """
-        with self._term.fullscreen(), \
-                self._term.cbreak(), self._term.hidden_cursor():
-            print(self._term.move_xy(0, 0) + self._term.clear, end="")
+        with self._term.fullscreen(), self._term.cbreak(), self._term.hidden_cursor():
+            print(self._term.move_xy(0, 0) + self._term.clear, end="", flush=True)
             try:
                 yield
             finally:
-                print(self._term.clear + self._term.home,
-                      end="")
+                print(self._term.clear + self._term.home, end="", flush=True)
 
     def read(self, timeout: float = 0.05) -> None | Action | str:
         """
@@ -85,27 +84,72 @@ class TUI:
         title menu footline body shouldquit status
         """
         t = self._term
+        print(t.clear + t.move_xy(0, 9), end="")
         y = 0
-        print(t.clear + t.move_xy(0, y), end="")
-
-        # status
-        if spec.status:
-            kind = spec.status.kind  # "info" | "error" | "success"
-            style = {"info": t.bold, "error": t.bold_red,
-                     "success": t.bold_green}.get(kind, t.bold)
-            print(t.move_xy(0, y) + style(spec.status.text))
-            y += 2
 
         # title
         if spec.title:
             title = spec.title[: t.width]
-            print(t.move_xy(max(0, (t.width - len(title)) // 2), y)
-                  + t.bold(title))
+            x = max(0, (t.width - len(title)) // 2)
+            print(t.move_xy(x, y) + t.bold(title))
+            y += 2  # blank line after title
+
+        # menu
+        if spec.menu:
+            for i, item in enumerate(spec.menu.items):
+                prefix = "➤ " if i == spec.menu.selected_index else "  "
+                label = f"{item.label}"
+                if getattr(item, "hint", None):
+                    label += f" [{item.hint}]"
+                line = (prefix + label)[: max(0, t.width - 4)]
+                # style: disabled (dim) vs selected (reverse unless disabled)
+                if getattr(item, "disabled", False):
+                    styled = t.color(250)(line)
+                elif i == spec.menu.selected_index:
+                    styled = t.reverse(line)
+                else:
+                    styled = line
+                print(t.move_xy(2, y) + styled)
+                y += 1
+            y += 1  # spacer after menu
+
+        # bodyline
+        for line in getattr(spec, "body", []) or []:
+            print(t.move_xy(2, y) + line[: max(0, t.width - 4)])
+            y += 1
+
+        # status
+        if spec.status:
+            kind = spec.status.kind  # "info" | "error" | "success"
+            style = {"info": t.bold, "error": t.bold_red, "success": t.bold_green}.get(
+                kind, t.bold
+            )
+            print(t.move_xy(0, y) + style(spec.status.text))
             y += 2
 
+        # footer
+        if spec.footline:
+            print(t.move_xy(0, t.height - 1) + t.color(250)(spec.footline[: t.width]))
+
+        """
+        # status
+        if spec.status:
+            kind = spec.status.kind  # "info" | "error" | "success"
+            style = {"info": t.bold, "error": t.bold_red, "success": t.bold_green}.get(
+                kind, t.bold
+            )
+            print(t.move_xy(0, y) + style(spec.status.text))
+            y += 2
+
+        # title
+        title = spec.title[:w]
+        # print(t.move_xy(max(0, (w - len(title)) // 2), y) + t.bold(title))
+        print(t.move_xy(67, 4) + t.bold(title))
+        y += 2
+
         # body lines
-        for line in getattr(spec, "body_lines", [])[: max(0, t.height - 3)]:
-            print(t.move_xy(2, y) + line[: t.width - 4])
+        for line in getattr(spec, "body", [])[: max(0, h - 3)]:
+            print(t.move_xy(2, y) + line[: max(0, w - 4)])
             y += 1
 
         # menu
@@ -125,5 +169,8 @@ class TUI:
 
         # footer (bottom row)
         if spec.footline:
-            print(t.move_xy(0, t.height - 1)
-                  + t.color(250)(spec.footline[: t.width]))
+            print(t.move_xy(0, t.height - 1) + t.color(250)(spec.footline[: t.width]))
+
+        # flush the screen
+        """
+        sys.stdout.flush()

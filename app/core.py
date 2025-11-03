@@ -6,8 +6,6 @@ Implement the app class that deal with action and account.
 
 from __future__ import annotations
 
-from typing import Optional, Tuple
-
 from .actions import Action
 from .context import AppView
 from .domain import BankAccount
@@ -46,7 +44,7 @@ class App(AppView):
         """
         self._account.deposit(amount)
 
-    def withdraw(self, amount: int) -> Tuple[bool, Optional[str]]:
+    def withdraw(self, amount: int) -> None:
         """
         Apply a withdraw.
         """
