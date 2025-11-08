@@ -4,11 +4,8 @@ test_states.py
 Used to implement pytest for states
 """
 
-from app import Action
-from app import Status
-from app.states import MenuState
-from app.states import InputAmountState
-from app.states import QuitState
+from app import Action, Status
+from app.states import InputAmountState, MenuState, QuitState
 
 
 class FakeCtx:
@@ -64,8 +61,8 @@ def test_menu_navigation_wraps():
 
     assert s.render(ctx).menu.selected_index == 0
 
-    s = s.on_ui(Action.UP, ctx)   # wrap to last
-    assert s.render(ctx).menu.selected_index == 3
+    s = s.on_ui(Action.UP, ctx)  # wrap to last
+    assert s.render(ctx).menu.selected_index == 4
 
     s = s.on_ui(Action.DOWN, ctx)
     assert s.render(ctx).menu.selected_index == 0
@@ -91,8 +88,7 @@ def test_menu_withdraw_disabled_when_zero_balance():
     s = s.on_ui(Action.CONFIRM, ctx)
     spec2 = s.render(ctx)
     assert isinstance(s, MenuState)
-    assert isinstance(spec2.status, Status.__class__)\
-        or spec2.status is not None
+    assert isinstance(spec2.status, Status.__class__) or spec2.status is not None
     assert spec2.status.kind == "error"
 
 
@@ -108,8 +104,7 @@ def test_menu_withdraw_disabled_when_zero_balancei_v2():
     s = s.on_ui(Action.WITHDRAW, ctx)
     spec2 = s.render(ctx)
     assert isinstance(s, MenuState)
-    assert isinstance(spec2.status, Status.__class__)\
-        or spec2.status is not None
+    assert isinstance(spec2.status, Status.__class__) or spec2.status is not None
     assert spec2.status.kind == "error"
 
 

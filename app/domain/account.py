@@ -8,6 +8,8 @@ import sqlite3
 from dataclasses import dataclass
 from typing import Optional, Tuple
 
+import bcrypt
+
 __all__ = ["BankAccount", "AccountStorage"]
 
 
@@ -75,9 +77,11 @@ class AccountStorage:
         """
         Create account with given parameters
         """
+        salt = bcrypt.gensalt(rounds=12)
+        pin_hash = bcrypt.hashpw(pin.encode("utf-8"), salt).decode("utf-8")
         self.conn.execute(
             "INSERT INTO accounts (id, pin, balance) VALUES (?, ?, ?)",
-            (id, pin, initial_balance),
+            (id, pin_hash, initial_balance),
         )
         self.conn.commit()
 
@@ -87,13 +91,15 @@ class AccountStorage:
         Using id and pin
         """
         cur = self.conn.cursor()
-        cur.execute(
-            "SELECT id, pin, balance FROM accounts WHERE id=? AND pin=?", (id, pin)
-        )
+        cur.execute("SELECT id, pin, balance FROM accounts WHERE id=?", (id,))
         row = cur.fetchone()
-        if row is None:
+        if not row:
             return None
-        return BankAccount(id=row[0], pin=row[1], _balance=row[2])
+        stored_hash = row[1].encode("utf-8")
+        if bcrypt.checkpw(pin.encode("utf-8"), stored_hash):
+            return BankAccount(id=row[0], pin=pin, _balance=row[2])
+        else:
+            return None
 
     def update_balance(self, account: BankAccount) -> None:
         """
