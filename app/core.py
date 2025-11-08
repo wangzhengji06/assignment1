@@ -8,9 +8,9 @@ from __future__ import annotations
 
 from .actions import Action
 from .context import AppView
-from .domain import BankAccount
+from .domain import AccountStorage
 from .render_spec import RenderSpec
-from .states import MenuState
+from .states import LoginState
 
 __all__ = ["App"]
 
@@ -21,16 +21,31 @@ class App(AppView):
     """
 
     def __init__(self) -> None:
-        self._account = BankAccount()
-        self.state = MenuState()
+        self.storage = AccountStorage()
+        self._account = None
+        self.state = LoginState()
         self.state.on_enter()
+
+    def login(self, id: int, pin: str) -> bool:
+        """
+        Login using the database.
+        If login failed, return False.
+        """
+        acct = self.storage.get_account(id, pin)
+        if not acct:
+            return False
+        self._account = acct
+        return True
+
+    def logout(self) -> None:
+        self._account = None
 
     @property
     def balance(self) -> int:
         """
         Return the back account balance.
         """
-        return self._account.get_balance()
+        return self._account.get_balance() if self._account else 0
 
     def format_amount(self, amount: int) -> str:
         """
@@ -42,13 +57,19 @@ class App(AppView):
         """
         Apply a deposit.
         """
+        self._require_login()
         self._account.deposit(amount)
+        self.storage.update_balance(self._account)
 
     def withdraw(self, amount: int) -> None:
         """
         Apply a withdraw.
         """
-        return self._account.withdraw(amount)
+        self._require_login()
+        ok, err = self._account.withdraw(amount)
+        if ok:
+            self.storage.update_balance(self._account)
+        return ok, err
 
     def render(self) -> RenderSpec:
         """
@@ -69,3 +90,10 @@ class App(AppView):
         else:
             return
         self.state = next_state
+
+    def _require_login(self) -> None:
+        """
+        Needs login to perform
+        """
+        if self._account is None:
+            raise RuntimeError("Log in first.")

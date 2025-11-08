@@ -3,8 +3,10 @@ context.py
 
 Provide property for state to use
 """
+
 from __future__ import annotations
-from typing import Protocol, Optional, Tuple
+
+from typing import Optional, Protocol, Tuple
 
 __all__ = ["AppView"]
 
@@ -13,6 +15,12 @@ class AppView(Protocol):
     """
     Used to expose runtime information to state of the core
     """
+
+    def login(self, id: int, pin: str) -> bool:
+        """
+        Login using the database
+        """
+
     @property
     def balance(self) -> int:
         """
