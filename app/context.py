@@ -21,6 +21,11 @@ class AppView(Protocol):
         Login using the database
         """
 
+    def logout(self) -> None:
+        """
+        Log out
+        """
+
     @property
     def balance(self) -> int:
         """

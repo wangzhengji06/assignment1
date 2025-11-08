@@ -37,9 +37,10 @@ class MenuState(State):
         Handle state transition when a new action is activated.
         """
         from .input_state import InputAmountState
+        from .login_state import LoginState
         from .quit_state import QuitState
 
-        menu = ("DEPOSIT", "WITHDRAW", "SHOW_BALANCE", "QUIT")
+        menu = ("DEPOSIT", "WITHDRAW", "SHOW_BALANCE", "LOGOUT", "QUIT")
         no_funds_msg = "No funds to withdraw"
 
         def show_balance():
@@ -68,6 +69,10 @@ class MenuState(State):
             case Action.QUIT:
                 return QuitState()
 
+            case Action.LOGOUT:
+                ctx.logout()
+                return LoginState()
+
             case Action.SHOW_BALANCE:
                 show_balance()
 
@@ -81,6 +86,9 @@ class MenuState(State):
                             return InputAmountState(kind="withdraw")
                     case "SHOW_BALANCE":
                         show_balance()
+                    case "LOGOUT":
+                        ctx.logout
+                        return LoginState()
                     case "QUIT":
                         return QuitState()
 
@@ -101,6 +109,7 @@ class MenuState(State):
             MenuItem("Deposit", "DEPOSIT"),
             MenuItem("Withdraw", "WITHDRAW", disabled),
             MenuItem("Show Balance", "SHOW_BALANCE"),
+            MenuItem("Logout", "LOGOUT"),
             MenuItem("Quit", "QUIT"),
         ]
         return RenderSpec(

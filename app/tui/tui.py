@@ -134,7 +134,7 @@ class TUI:
             text = footer[: max(0, t.width - 1)]
             print(
                 t.move_xy(0, t.height - 1) + t.clear_eol + t.color(250)(text),
-                end="",  # <- no newline to prevent scroll
+                end="",
             )
 
         sys.stdout.flush()

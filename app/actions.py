@@ -22,9 +22,11 @@ class Action(Enum):
     Used to represent the action read by the tui from user input.
     The action will be sent to main logic.
     """
+
     CONFIRM = auto()
     CANCEL = auto()
     QUIT = auto()
+    LOGOUT = auto()
     DEPOSIT = auto()
     WITHDRAW = auto()
     SHOW_BALANCE = auto()
