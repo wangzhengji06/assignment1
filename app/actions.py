@@ -30,5 +30,6 @@ class Action(Enum):
     DEPOSIT = auto()
     WITHDRAW = auto()
     SHOW_BALANCE = auto()
+    SHOW_FOREIGN_BALANCE = auto()
     UP = auto()
     DOWN = auto()
