@@ -31,5 +31,6 @@ class Action(Enum):
     WITHDRAW = auto()
     SHOW_BALANCE = auto()
     SHOW_FOREIGN_BALANCE = auto()
+    CONVERT = auto()
     UP = auto()
     DOWN = auto()

@@ -24,7 +24,7 @@ CACHE_FILE = "exchange_cache.json"
 CACHE_TTL = 24 * 60 * 60
 
 
-def load_cache() -> Dict[str, int] | None:
+def load_cache() -> Dict[str, float] | None:
     """
     If file not exists or over 24 hours, return None
     Else load json, read 'rates' and return dict
@@ -46,7 +46,7 @@ def save_cache(rates) -> None:
         json.dump({"timestamp": time.time(), "rates": rates}, f)
 
 
-def get_exchange_rates() -> Dict[str, int]:
+def get_exchange_rates() -> Dict[str, float]:
     """
     Return the exchange rate dict
     """
