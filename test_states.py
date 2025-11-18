@@ -62,7 +62,7 @@ def test_menu_navigation_wraps():
     assert s.render(ctx).menu.selected_index == 0
 
     s = s.on_ui(Action.UP, ctx)  # wrap to last
-    assert s.render(ctx).menu.selected_index == 4
+    assert s.render(ctx).menu.selected_index == 5
 
     s = s.on_ui(Action.DOWN, ctx)
     assert s.render(ctx).menu.selected_index == 0
