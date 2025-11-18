@@ -9,6 +9,7 @@ from __future__ import annotations
 from .actions import Action
 from .context import AppView
 from .domain import AccountStorage
+from .network import get_exchange_rates
 from .render_spec import RenderSpec
 from .states import LoginState
 
@@ -97,3 +98,23 @@ class App(AppView):
         """
         if self._account is None:
             raise RuntimeError("Log in first.")
+
+    def convert_balance_to(self, target: str) -> tuple[bool, str]:
+        """
+        Try to convert the currency to target currency.
+        Returns ok if target is valid.
+        """
+        base = "USD"
+        ok, rates, err = get_exchange_rates(base=base, timeout=5.0)
+        if not ok and rates is None:
+            return False, (err or "Network unavailable")
+        rate_map = rates if rates else {}
+        rate = rate_map.get(target.upper())
+        if rate is None:
+            return False, "Invalid or unsupported currency code"
+
+        converted = self.balance * rate
+        return (
+            True,
+            f"{self.format_amount(self.balance)} → {target.upper()} {converted:,.2f}",
+        )

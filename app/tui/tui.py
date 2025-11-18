@@ -73,7 +73,7 @@ class TUI:
                 return Action.WITHDRAW
             case "s":
                 return Action.SHOW_BALANCE
-            case _ if ch.isdigit():
+            case _ if ch.isdigit() or ch.isalpha():
                 return ch
             case _:
                 return None

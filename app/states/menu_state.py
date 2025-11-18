@@ -115,6 +115,7 @@ class MenuState(State):
             MenuItem("Withdraw", "WITHDRAW", disabled),
             MenuItem("Show Balance", "SHOW_BALANCE"),
             MenuItem("Logout", "LOGOUT"),
+            MenuItem("Convert", "CONVERT"),
             MenuItem("Quit", "QUIT"),
         ]
         return RenderSpec(

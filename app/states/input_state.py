@@ -97,13 +97,12 @@ class InputAmountState(State):
         )
 
 
-class InputCurrecyState(State):
+class InputCurrencyState(State):
     """
     The class of input currency stage
     """
 
-    def __init__(self, kind: str, status: Optional[Status] = None) -> None:
-        self.kind = kind
+    def __init__(self, status: Optional[Status] = None) -> None:
         self.buffer = ""
         self.status = status
 
@@ -127,48 +126,33 @@ class InputCurrecyState(State):
                     self.status = Status("error", "Not allowed input")
                     return self
 
-                CUR = int(self.buffer)
-
-                if self.kind == "deposit":
-                    ctx.deposit(amount)
-                    return MenuState(
-                        status=Status(
-                            "success", f"Depoisit {ctx.format_amount(amount)}."
-                        )
-                    )
-
-                if self.kind == "withdraw":
-                    ok, err = ctx.withdraw(amount)
-                    if ok:
-                        return MenuState(
-                            status=Status(
-                                "success", f"Withdraw {ctx.format_amount(amount)}."
-                            )
-                        )
-                    return MenuState(status=Status("error", err))
+                ok, msg = ctx.convert_balance_to(self.buffer)
+                kind = "success" if ok else "error"
+                return MenuState(status=Status(kind, msg))
+        return self
 
     def on_text(self, text: str, ctx: AppView) -> State:
         """
         append the text to buffer
         """
-        if text.isdigit():
-            self.buffer += text
+        if text.isalpha() and len(self.buffer) < 3:
+            self.buffer += text.upper()
             self.status = Status("info", "Inputting....")
         elif text == "BACKSPACE":
             self.buffer = self.buffer[:-1]
         else:
-            self.status = Status("error", "Not valid Amount")
+            self.status = Status("error", "Not valid A-Z")
         return self
 
     def render(self, ctx: AppView) -> RenderSpec:
         """
-        Return the current kind
+        Return the title
         Return the current buffer in bodyline
         Show the current status
         Return a footer shows the hint for confirm and cancel
         """
         return RenderSpec(
-            title=f"{'Deposit' if self.kind == 'deposit' else 'Withdraw'}",
+            title="Convert Balance",
             body=[
                 f"Input: {self.buffer or '(empty)'}",
             ],

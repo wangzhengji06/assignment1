@@ -9,17 +9,14 @@ Updated every 24 hours
 import json
 import os
 import time
-from typing import Dict
+from typing import Dict, Optional, Tuple
 
 import requests
+from dotenv import load_dotenv
 
 __all__ = ["get_exchange_rates"]
 
-API_KEY = os.getenv("EXCHANGE_API_KEY")
-if not API_KEY:
-    raise RuntimeError("Missing EXCHANGE_API_KEY")
-
-API_URL = f"https://v6.exchangerate-api.com/v6/{API_KEY}/latest/USD"
+API_URL = "https://v6.exchangerate-api.com/v6/{API_KEY}/latest/USD"
 CACHE_FILE = "exchange_cache.json"
 CACHE_TTL = 24 * 60 * 60
 
@@ -46,16 +43,34 @@ def save_cache(rates) -> None:
         json.dump({"timestamp": time.time(), "rates": rates}, f)
 
 
-def get_exchange_rates() -> Dict[str, float]:
+def get_exchange_rates(
+    base: str = "USD", timeout: float = 5.0
+) -> Tuple[bool, Optional[Dict[str, float]], Optional[str]]:
     """
-    Return the exchange rate dict
+    Returns (ok, rates, error). Uses cache first. On failure, (False, None, 'message').
     """
-    cache_rates = load_cache()
-    if cache_rates:
-        return cache_rates
-    resp = requests.get(API_URL)
-    resp.raise_for_status()
-    data = resp.json()["conversion_rates"]
+    load_dotenv()
+    key = os.getenv("EXCHANGE_API_KEY")
+    if not key:
+        # still allow cache use if present
+        cached = load_cache()
+        return (False, cached, "Missing EXCHANGE_API_KEY")
 
-    save_cache(data)
-    return data
+    cached = load_cache()
+    if cached:
+        return (True, cached, None)
+
+    try:
+        resp = requests.get(API_URL.format(API_KEY=key, base=base), timeout=timeout)
+        resp.raise_for_status()
+        data = resp.json()
+        rates = data.get("conversion_rates")
+        if not isinstance(rates, dict):
+            return (False, cached, "Bad API response")
+        rates = {k: float(v) for k, v in rates.items()}
+        save_cache(rates)
+        return (True, rates, None)
+    except requests.Timeout:
+        return (False, cached, "Network timeout")
+    except requests.RequestException as e:
+        return (False, cached, f"Network error: {e}")
