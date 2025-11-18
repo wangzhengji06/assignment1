@@ -1,2 +1,4 @@
 blessed
 bcrypt
+requests
+python-dotenv
