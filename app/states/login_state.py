@@ -14,6 +14,7 @@ from ..context import AppView
 from ..render_spec import RenderSpec, Status
 from .state import State
 
+# Not needed to maintain
 __all__ = ["LoginState"]
 
 
@@ -22,10 +23,29 @@ class LoginState(State):
     The class of Login stage
     """
 
-    def __init__(self, status: Optional[Status] = None) -> None:
+    def _reset(self) -> None:
+        """
+        Reset the login stage and buffer
+        """
+        # Define stage using enum
         self.stage = "id"
         self.id_buffer = ""
         self.pin_buffer = ""
+
+    def _set_error(self, message: str) -> None:
+        """
+        Set the error status with the given message
+        """
+        self.status = Status(kind="error", text=message)
+
+    def _set_info(self, message: str) -> None:
+        """
+        Set the info status with the given message
+        """
+        self.status = Status(kind="info", text=message)
+
+    def __init__(self, status: Optional[Status] = None) -> None:
+        self._reset()
         self.status = status
 
     def on_enter(self) -> State:
@@ -47,29 +67,25 @@ class LoginState(State):
             case Action.CONFIRM:
                 if self.stage == "id":
                     if not self.id_buffer:
-                        self.status = Status(kind="error", text="Please enter your id.")
+                        self._set_error("Please enter your id.")
                         return self
                     self.stage = "pin"
-                    self.status = Status(kind="info", text="Now enter your pin.")
+                    self._set_info("Now enter your pin")
                     return self
                 elif self.stage == "pin":
                     try:
                         id = int(self.id_buffer)
                     except ValueError:
-                        self.status = Status(kind="error", text="Not a valid ID.")
-                        self.stage = "id"
-                        self.id_buffer = ""
-                        self.pin_buffer = ""
+                        self._set_error("Not a valid ID")
+                        self._reset()
                         return self
 
                     ok = ctx.login(id, self.pin_buffer)
                     if ok:
                         return MenuState()
                     else:
-                        self.status = Status(kind="error", text="Wrong PIN or ID.")
-                        self.stage = "id"
-                        self.id_buffer = ""
-                        self.pin_buffer = ""
+                        self._set_error("Wrong PIN or ID")
+                        self._reset()
                         return self
         return self
 

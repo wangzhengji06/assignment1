@@ -21,6 +21,8 @@ CACHE_FILE = "exchange_cache.json"
 CACHE_TTL = 24 * 60 * 60
 
 
+# Add an api client
+# load_cahce and save cache are private methods
 def load_cache() -> Dict[str, float] | None:
     """
     If file not exists or over 24 hours, return None
@@ -49,6 +51,7 @@ def get_exchange_rates(
     """
     Returns (ok, rates, error). Uses cache first. On failure, (False, None, 'message').
     """
+    # Move the following two lines to main.py
     load_dotenv()
     key = os.getenv("EXCHANGE_API_KEY")
     if not key:

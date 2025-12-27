@@ -16,31 +16,24 @@ __all__ = ["BankAccount", "AccountStorage"]
 @dataclass
 class BankAccount:
     """
-    Dataclass that represents a bank account
-    has id, pin, balance
+    DataClass that defines the BankAccount.
+    has pin, id, _balance.
     """
 
     id: int
     pin: str
-    _balance: str
-
-    def __str__(self) -> str:
-        return f"BankAccount with {id(self)}"
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, BankAccount):
-            return False
-        return self._balance == other._balance
+    _balance: int
 
     def deposit(self, amount: int) -> None:
         """
-        deposits {amount} dollars into the back account
+        Add the amount to the _balance field.
         """
         self._balance += amount
 
     def withdraw(self, amount: int) -> Tuple[bool, Optional[str]]:
         """
-        withdraws {amount} dollars from the back account
+        Returns (True, None) if withdraw is succeeded.
+        Otherwise Return (False, "not enought balance")
         """
         if self._balance < amount:
             return False, "Not enough balance"
@@ -49,70 +42,111 @@ class BankAccount:
 
     def get_balance(self) -> int:
         """
-        return the balance of the bank account
+        Return the balance Field of the BankAccount.
         """
         return self._balance
 
 
 class AccountStorage:
     """
-    Persistence data storing class
+    Persistent data stroage class
     """
 
     def __init__(self, db_path: str = "bank.db") -> None:
         """
-        create a table called accounts in db_path
+        Create a database in db_path.
+        Will try to create table accounts if not existed.
         """
-        self.conn = sqlite3.connect(db_path)
-        self.conn.execute("""
-            CREATE TABLE IF NOT EXISTS accounts (
-                id INTEGER PRIMARY KEY,
-                pin TEXT NOT NULL,
-                balance INTEGER NOT NULL DEFAULT 0
+        self.db_path = db_path
+        self._init_db()
+
+    def _connect(self) -> sqlite3.Connection:
+        """
+        Tried to establish a connection with the sqlite database.
+        """
+        return sqlite3.connect(self.db_path)
+
+    def _init_db(self) -> None:
+        """
+        Try to create table if not exists.
+        """
+        conn = self._connect()
+        try:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS accounts (
+                    id INTEGER PRIMARY KEY,
+                    pin TEXT NOT NULL,
+                    balance INTEGER NOT NULL DEFAULT 0
+                )
+                """
             )
-        """)
-        self.conn.commit()
+            conn.commit()
+        finally:
+            conn.close()
 
     def create_account(self, id: int, pin: str, initial_balance: int = 0) -> None:
         """
-        Create account with given parameters
+        Create an account given id, pin, and initial_balance, by default the balance would be 0.
         """
         salt = bcrypt.gensalt(rounds=12)
         pin_hash = bcrypt.hashpw(pin.encode("utf-8"), salt).decode("utf-8")
-        self.conn.execute(
-            "INSERT INTO accounts (id, pin, balance) VALUES (?, ?, ?)",
-            (id, pin_hash, initial_balance),
-        )
-        self.conn.commit()
+
+        conn = self._connect()
+        try:
+            conn.execute(
+                "INSERT INTO accounts (id, pin, balance) VALUES (?, ?, ?)",
+                (id, pin_hash, initial_balance),
+            )
+            conn.commit()
+        finally:
+            conn.close()
 
     def get_account(self, id: int, pin: str) -> Optional[BankAccount]:
         """
-        Get the bankaccount stored inside database
-        Using id and pin
+        Get an account by using id and pin.
         """
-        cur = self.conn.cursor()
-        cur.execute("SELECT id, pin, balance FROM accounts WHERE id=?", (id,))
-        row = cur.fetchone()
-        if not row:
-            return None
-        stored_hash = row[1].encode("utf-8")
-        if bcrypt.checkpw(pin.encode("utf-8"), stored_hash):
-            return BankAccount(id=row[0], pin=pin, _balance=row[2])
-        else:
-            return None
+        conn = self._connect()
+        try:
+            cur = conn.cursor()
+            cur.execute("SELECT id, pin, balance FROM accounts WHERE id=?", (id,))
+            row = cur.fetchone()
+            if not row:
+                return None
+
+            stored_hash = row[1].encode("utf-8")
+            if not bcrypt.checkpw(pin.encode("utf-8"), stored_hash):
+                return None
+
+            return BankAccount(id=row[0], pin=pin, _balance=int(row[2]))
+        finally:
+            conn.close()
+
+    def get_account_by_id(self, id: int) -> Optional[BankAccount]:
+        """
+        Needed for GET /accounts/{id} without auth.
+        """
+        conn = self._connect()
+        try:
+            cur = conn.cursor()
+            cur.execute("SELECT id, balance FROM accounts WHERE id=?", (id,))
+            row = cur.fetchone()
+            if not row:
+                return None
+            return BankAccount(id=row[0], pin="", _balance=int(row[1]))
+        finally:
+            conn.close()
 
     def update_balance(self, account: BankAccount) -> None:
         """
-        Update the bankaccount after bank account does some crazy stuff
+        Update the balance in the database using the current account state.
         """
-        self.conn.execute(
-            "UPDATE accounts SET balance=? WHERE id=?",
-            (account.get_balance(), account.id),
-        )
-        self.conn.commit()
-
-    def close(self) -> None:
-        """
-        Close the database connection
-        """
-        self.conn.close()
+        conn = self._connect()
+        try:
+            conn.execute(
+                "UPDATE accounts SET balance=? WHERE id=?",
+                (account.get_balance(), account.id),
+            )
+            conn.commit()
+        finally:
+            conn.close()

@@ -135,11 +135,11 @@ class InputCurrencyState(State):
         """
         append the text to buffer
         """
-        if text.isalpha() and len(self.buffer) < 3:
+        if text == "BACKSPACE":
+            self.buffer = self.buffer[:-1]
+        elif text.isalpha() and len(self.buffer) < 3:
             self.buffer += text.upper()
             self.status = Status("info", "Inputting....")
-        elif text == "BACKSPACE":
-            self.buffer = self.buffer[:-1]
         else:
             self.status = Status("error", "Not valid A-Z")
         return self

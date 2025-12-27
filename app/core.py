@@ -50,7 +50,7 @@ class App(AppView):
 
     def format_amount(self, amount: int) -> str:
         """
-        Return a humann-readable amount string.
+        Return a human-readable amount string.
         """
         return f"{amount}$"
 
