@@ -2,3 +2,6 @@ blessed
 bcrypt
 requests
 python-dotenv
+fastapi[standard]
+pysqlite3
+requests

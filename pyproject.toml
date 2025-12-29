@@ -8,8 +8,8 @@ dependencies = [
     "bcrypt>=5.0.0",
     "blessed>=1.22.0",
     "fastapi[standard]>=0.121.2",
-    "jupyter>=1.1.1",
     "pysqlite3>=0.5.4",
     "pytest>=8.4.2",
     "python-dotenv>=1.2.1",
+    "requests>=2.32.5",
 ]
