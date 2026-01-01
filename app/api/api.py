@@ -4,7 +4,7 @@ api.py
 The fastapi main app.
 """
 
-from fastapi import FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, status
 
 from ..domain.account import AccountStorage
 from ..network import get_exchange_rates
@@ -18,11 +18,16 @@ from .models import (
 __all__ = []
 
 app = FastAPI(title="Bank Account Manager")
-storage = AccountStorage()
+
+
+def get_storage() -> AccountStorage:
+    return AccountStorage()
 
 
 @app.get("/accounts/{account_id}", response_model=AccountManipulationResponse)
-def get_account_by_id(account_id: int) -> AccountManipulationResponse:
+def get_account_by_id(
+    account_id: int, storage: AccountStorage = Depends(get_storage)
+) -> AccountManipulationResponse:
     """
     Returns the account information directly using id.
     """
@@ -36,7 +41,9 @@ def get_account_by_id(account_id: int) -> AccountManipulationResponse:
 
 @app.post("/accounts/{account_id}/deposit", response_model=AccountManipulationResponse)
 def deposit(
-    account_id: int, req: AccountManipulationRequest
+    account_id: int,
+    req: AccountManipulationRequest,
+    storage: AccountStorage = Depends(get_storage),
 ) -> AccountManipulationResponse:
     """
     Deposits amount into account_id using pin and amount in req
@@ -53,7 +60,9 @@ def deposit(
 
 @app.post("/accounts/{account_id}/withdraw", response_model=AccountManipulationResponse)
 def withdraw(
-    account_id: int, req: AccountManipulationRequest
+    account_id: int,
+    req: AccountManipulationRequest,
+    storage: AccountStorage = Depends(get_storage),
 ) -> AccountManipulationResponse:
     """
     Withdraws amount from account_id using pin and amount in req

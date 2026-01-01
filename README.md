@@ -124,3 +124,7 @@ If I create app per request, this would not presist the login state.
 First the Get accounts endpoint require me to add a function that can get the BankAccount without providing the pin.
 
 Second I am currently not closing the db connection at all and keep all the transactions in the same connection session, this is okay for the tui but not good for fastapi.
+
+## Adding the test file for fastapi
+
+Now my way of defining everything backfires at me. Now I understand why it is better to use depends, and it works very well with the pytest depedency_overrides.
